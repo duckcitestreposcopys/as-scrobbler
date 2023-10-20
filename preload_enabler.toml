@@ -1,0 +1,5 @@
+enable_preload = false
+redirect_scrobbles = true
+scrobble_server = "http://127.0.0.1"
+server_port = 42010
+api_key = "put your maloja api key here"

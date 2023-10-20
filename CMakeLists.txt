@@ -31,7 +31,7 @@ option(SAFETYHOOK_FETCH_ZYDIS "" ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project(Wavebreaker-Hook
+project(preloadenabler
 	LANGUAGES
 		CXX
 	VERSION
@@ -40,23 +40,12 @@ project(Wavebreaker-Hook
 
 set(VCPKG_TARGET_TRIPLET x86-windows-static)
 
-if(CMKR_ROOT_PROJECT AND NOT CMKR_DISABLE_VCPKG)
-	include(FetchContent)
-	# Fix warnings about DOWNLOAD_EXTRACT_TIMESTAMP
-	if(POLICY CMP0135)
-		cmake_policy(SET CMP0135 NEW)
-	endif()
-	message(STATUS "Fetching vcpkg (2023.08.09)...")
-	FetchContent_Declare(vcpkg URL "https://github.com/microsoft/vcpkg/archive/refs/tags/2023.08.09.tar.gz")
-	FetchContent_GetProperties(vcpkg)
-	if(NOT vcpkg_POPULATED)
-		FetchContent_Populate(vcpkg)
-		include("${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
-	endif()
-endif()
-
 include(FetchContent)
 
+# Fix warnings about DOWNLOAD_EXTRACT_TIMESTAMP
+if(POLICY CMP0135)
+	cmake_policy(SET CMP0135 NEW)
+endif()
 message(STATUS "Fetching safetyhook (v0.1.3)...")
 FetchContent_Declare(safetyhook SYSTEM
 	GIT_REPOSITORY
@@ -84,52 +73,41 @@ FetchContent_Declare(spdlog SYSTEM
 )
 FetchContent_MakeAvailable(spdlog)
 
-# Packages
-find_package(imgui REQUIRED CONFIG)
-
-# Target: wavebreakerclient
-set(wavebreakerclient_SOURCES
-	"src/D3D9Hook.cpp"
-	"src/DInputHook.cpp"
-	"src/WindowsMessageHook.cpp"
+# Target: preloadenabler
+set(preloadenabler_SOURCES
 	"src/dllmain.cpp"
-	"include/D3D9Hook.hpp"
-	"include/DInputHook.hpp"
-	"include/WindowsMessageHook.hpp"
 	"include/config.hpp"
 	"include/nethook.hpp"
-	"include/overlay.hpp"
-	"include/utility.hpp"
+	"include/preload.hpp"
+	"include/scrobbler.hpp"
 	cmake.toml
 )
 
-add_library(wavebreakerclient SHARED)
+add_library(preloadenabler SHARED)
 
-target_sources(wavebreakerclient PRIVATE ${wavebreakerclient_SOURCES})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${wavebreakerclient_SOURCES})
+target_sources(preloadenabler PRIVATE ${preloadenabler_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${preloadenabler_SOURCES})
 
-target_compile_features(wavebreakerclient PUBLIC
+target_compile_features(preloadenabler PUBLIC
 	cxx_std_23
 )
 
-target_include_directories(wavebreakerclient PUBLIC
+target_include_directories(preloadenabler PUBLIC
 	include
 )
 
-target_link_libraries(wavebreakerclient PUBLIC
+target_link_libraries(preloadenabler PUBLIC
 	safetyhook
 	toml11
 	spdlog
 	wininet
-	imgui::imgui
-	D3d9
 )
 
 install(
 	TARGETS
-		wavebreakerclient
+		preloadenabler
 	DESTINATION
 		bin
 	COMPONENT
-		wavebreakerclient
+		preloadenabler
 )
