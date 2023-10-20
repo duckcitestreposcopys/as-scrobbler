@@ -1,12 +1,4 @@
-/**
- * This file:
- * - hooks wininet functions
- * - rewrites game requests to go to a custom server
- * - rewrites HTTP requests to use HTTPS
- */
-
 #include <Windows.h>
-#include <WinInet.h>
 #include <stdexcept>
 #include <safetyhook.hpp>
 #include <spdlog/spdlog.h>
